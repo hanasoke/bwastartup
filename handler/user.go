@@ -21,7 +21,6 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-
 		errors := helper.FormatValidationError(err)
 		errorMessage := gin.H{"errors": errors}
 
