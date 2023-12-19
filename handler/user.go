@@ -87,11 +87,9 @@ func (h *userHandler) Login(c *gin.Context) {
 	}
 
 	formatter := user.FormatUser(loggedinUser, token)
-
 	response := helper.APIResponse("Successfuly loggedin", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
