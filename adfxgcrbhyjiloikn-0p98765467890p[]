@@ -1,0 +1,107 @@
+[1mdiff --git a/campaign/service.go b/campaign/service.go[m
+[1mindex 17b3f91..dbfa1bc 100644[m
+[1m--- a/campaign/service.go[m
+[1m+++ b/campaign/service.go[m
+[36m@@ -1,18 +1,23 @@[m
+ package campaign[m
+ [m
+ type Service interface {[m
+[31m-	FindCampaigns(UserID int) ([]Campaign, error)[m
+[32m+[m	[32mGetCampaigns(UserID int) ([]Campaign, error)[m
+ }[m
+ [m
+ type service struct {[m
+ 	repository Repository[m
+ }[m
+ [m
+[32m+[m[32m// FindCampaigns implements Service.[m
+[32m+[m[32mfunc (*service) FindCampaigns(UserID int) ([]Campaign, error) {[m
+[32m+[m	[32mpanic("unimplemented")[m
+[32m+[m[32m}[m
+[32m+[m
+ func NewService(repository Repository) *service {[m
+ 	return &service{repository}[m
+ }[m
+ [m
+[31m-func (s *service) FindCampaigns(userID int) ([]Campaign, error) {[m
+[32m+[m[32mfunc (s *service) GetCampaigns(userID int) ([]Campaign, error) {[m
+ 	if userID != 0 {[m
+ 		campaigns, err := s.repository.FindByUserID(userID)[m
+ 		if err != nil {[m
+[1mdiff --git a/handler/campaign.go b/handler/campaign.go[m
+[1mindex efa916e..e6b5ab5 100644[m
+[1m--- a/handler/campaign.go[m
+[1m+++ b/handler/campaign.go[m
+[36m@@ -1,7 +1,34 @@[m
+ package handler[m
+ [m
+[31m-// tangkap parameter di handler[m
+[31m-// handler ke service[m
+[31m-// service yang menentukan repository mana yang di-call[m
+[31m-// repository : FindAll, FindByUserID[m
+[31m-// db[m
+[32m+[m[32mimport ([m
+[32m+[m	[32m"bwastartup/campaign"[m
+[32m+[m	[32m"bwastartup/helper"[m
+[32m+[m	[32m"net/http"[m
+[32m+[m	[32m"strconv"[m
+[32m+[m
+[32m+[m	[32m"github.com/gin-gonic/gin"[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mtype campaignHandler struct {[m
+[32m+[m	[32mservice campaign.Service[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunc NewCampaignHandler(service campaign.Service) *campaignHandler {[m
+[32m+[m	[32mreturn &campaignHandler{service}[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunc (h *campaignHandler) GetCampaigns(c *gin.Context) {[m
+[32m+[m	[32muserID, _ := strconv.Atoi(c.Query("user_id"))[m
+[32m+[m
+[32m+[m	[32mcampaigns, err := h.service.GetCampaigns(userID)[m
+[32m+[m
+[32m+[m	[32mif err != nil {[m
+[32m+[m		[32mresponse := helper.APIResponse("Error to get campaigns", http.StatusBadRequest, "error", nil)[m
+[32m+[m		[32mc.JSON(http.StatusBadRequest, response)[m
+[32m+[m		[32mreturn[m
+[32m+[m	[32m}[m
+[32m+[m
+[32m+[m	[32mresponse := helper.APIResponse("List of campaigns", http.StatusOK, "success", campaigns)[m
+[32m+[m	[32mc.JSON(http.StatusOK, response)[m
+[32m+[m
+[32m+[m[32m}[m
+[1mdiff --git a/main.go b/main.go[m
+[1mindex 6f050a6..a029f75 100644[m
+[1m--- a/main.go[m
+[1m+++ b/main.go[m
+[36m@@ -6,7 +6,6 @@[m [mimport ([m
+ 	"bwastartup/handler"[m
+ 	"bwastartup/helper"[m
+ 	"bwastartup/user"[m
+[31m-	"fmt"[m
+ 	"log"[m
+ 	"net/http"[m
+ 	"strings"[m
+[36m@@ -32,10 +31,8 @@[m [mfunc main() {[m
+ 	campaignService := campaign.NewService(campaignRepository)[m
+ 	authService := auth.NewService()[m
+ [m
+[31m-	campaigns, _ := campaignService.FindCampaigns(8)[m
+[31m-	fmt.Println(len(campaigns))[m
+[31m-[m
+ 	userHandler := handler.NewUserHandler(userService, authService)[m
+[32m+[m	[32mcampaignHandler := handler.NewCampaignHandler(campaignService)[m
+ [m
+ 	router := gin.Default()[m
+ 	api := router.Group("/api/v1")[m
+[36m@@ -45,6 +42,8 @@[m [mfunc main() {[m
+ 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)[m
+ 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)[m
+ [m
+[32m+[m	[32mapi.GET("/campaigns", campaignHandler.GetCampaigns)[m
+[32m+[m
+ 	router.Run()[m
+ }[m
+ [m
