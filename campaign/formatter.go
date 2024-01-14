@@ -1,8 +1,6 @@
 package campaign
 
-import (
-	"strings"
-)
+import "strings"
 
 type CampaignFormatter struct {
 	ID               int    `json:"id"`
@@ -52,6 +50,7 @@ type CampaignDetailFormatter struct {
 	ImageURL         string   			   `json:"image_url"`
 	GoalAmount       int      			   `json:"goal_amount"`
 	CurrentAmount    int      			   `json:"current_amount"`
+	BackerCount 	 int 				   `json:"backer_count"`
 	UserID           int      			   `json:"user_id"`
 	Slug             string   			   `json:"slug"`
 	Perks            []string 			   `json:"perks"`
@@ -60,7 +59,7 @@ type CampaignDetailFormatter struct {
 }
 
 type CampaignUserFormatter struct {
-	Name string `json:"name"`
+	Name 	 string `json:"name"`
 	ImageURL string `json:"image_url"`
 }
 
@@ -73,9 +72,11 @@ func FormatCampaignDetail(campaign Campaign) CampaignDetailFormatter {
 	CampaignDetailFormatter := CampaignDetailFormatter{}
 	CampaignDetailFormatter.ID = campaign.ID
 	CampaignDetailFormatter.Name = campaign.Name
-	CampaignDetailFormatter.ShortDescription = campaign.Description
+	CampaignDetailFormatter.ShortDescription = campaign.ShortDescription
+	CampaignDetailFormatter.Description = campaign.Description
 	CampaignDetailFormatter.GoalAmount = campaign.GoalAmount
 	CampaignDetailFormatter.CurrentAmount = campaign.CurrentAmount
+	CampaignDetailFormatter.BackerCount = campaign.BackerCount
 	CampaignDetailFormatter.UserID = campaign.UserID
 	CampaignDetailFormatter.Slug = campaign.Slug
 	CampaignDetailFormatter.ImageURL = ""
@@ -119,5 +120,4 @@ func FormatCampaignDetail(campaign Campaign) CampaignDetailFormatter {
 	CampaignDetailFormatter.Images = images
 	
 	return CampaignDetailFormatter
-
 }
