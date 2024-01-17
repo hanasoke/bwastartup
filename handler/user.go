@@ -139,7 +139,6 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 	}
 
 	currentUser := c.MustGet("currentUser").(user.User)
-
 	userID := currentUser.ID
 
 	path := fmt.Sprintf("images/%d-%s", userID, file.Filename)
@@ -166,5 +165,4 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 	response := helper.APIResponse("Avatar successfuly upload", http.StatusOK, "success", data)
 
 	c.JSON(http.StatusOK, response)
-
 }
