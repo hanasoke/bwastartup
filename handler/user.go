@@ -140,7 +140,6 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 
 	currentUser := c.MustGet("currentUser").(user.User)
 	userID := currentUser.ID
-
 	path := fmt.Sprintf("images/%d-%s", userID, file.Filename)
 
 	err = c.SaveUploadedFile(file, path)
@@ -163,6 +162,17 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 
 	data := gin.H{"is_uploaded": true}
 	response := helper.APIResponse("Avatar successfuly upload", http.StatusOK, "success", data)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *userHandler) FetchUser(c *gin.Context) {
+
+	currentUser := c.MustGet("currentUser").(user.User)
+
+	formatter := user.FormatUser(currentUser, "")
+
+	response := helper.APIResponse("Successfully fetch user data", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
 }
